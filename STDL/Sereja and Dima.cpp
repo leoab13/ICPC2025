@@ -1,11 +1,23 @@
-#include <iostream>
-#include <set>
-#include <vector>
+
+#include <bits/stdc++.h>
 using namespace std;
 
-vector<int> sol(set<int>& cards)
+void sol(set<int>& cards, int x)
 {
-
+    vector<int> ans = {0,0};
+    for(int j = 0; j < x; j++)
+    {
+        if(j%2 == 0)
+        {
+            ans[0] +=  *cards.end();
+        }
+        else
+        {
+            ans[1] += *cards.end();
+        }
+        cards.erase(cards.end());
+    }
+    cout << ans[0] << ans[1] << endl;
 }
 
 int main()
@@ -19,6 +31,6 @@ int main()
         cin >> tmp;
         cards.insert(tmp);
     }
-    cout << "Hello World" << endl;
+    sol(cards,x);
     return 0;
 }
