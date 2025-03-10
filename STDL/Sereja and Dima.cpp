@@ -1,23 +1,18 @@
-
 #include <bits/stdc++.h>
 using namespace std;
 
 void sol(set<int>& cards, int x)
 {
-    vector<int> ans = {0,0};
-    for(int j = 0; j < x; j++)
+    vector<int> ans(2, 0);
+    
+    for (int j = 0; j < x; j++)
     {
-        if(j%2 == 0)
-        {
-            ans[0] +=  *cards.end();
-        }
-        else
-        {
-            ans[1] += *cards.end();
-        }
-        cards.erase(cards.end());
+        auto last = prev(cards.end());
+        ans[j % 2] += *last;
+        cards.erase(last);
     }
-    cout << ans[0] << ans[1] << endl;
+    
+    cout << ans[0] << " " << ans[1] << endl;
 }
 
 int main()
@@ -25,12 +20,14 @@ int main()
     int x;
     cin >> x;
     set<int> cards;
-    int tmp;
-    for(int i = 0; i < x ; i++)
+    
+    for (int i = 0; i < x; i++)
     {
+        int tmp;
         cin >> tmp;
         cards.insert(tmp);
     }
-    sol(cards,x);
+
+    sol(cards, x);
     return 0;
 }
