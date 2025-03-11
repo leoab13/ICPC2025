@@ -1,3 +1,6 @@
+//https://www.hackerearth.com/practice/data-structures/trees/
+//binary-search-tree/practice-problems/algorithm/distinct-count/discussion/
+//c-solution-using-uno-2545e301/?purpose=signup&source=problem-page&update=google
 #include <bits/stdc++.h>
 using namespace std;
 string sol(vector<int> &n)
