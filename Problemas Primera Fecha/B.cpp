@@ -2,7 +2,7 @@
 using namespace std;
 using ll = long long;
 
-// Recorre la matriz en espiral desde (sx, sy) con el orden de direcciones dado
+
 ll walk_spiral(const vector<vector<ll>>& mat, int sx, int sy,
                const vector<int>& dx, const vector<int>& dy) {
     int n = mat.size();
