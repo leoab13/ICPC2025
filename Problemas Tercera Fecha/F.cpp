@@ -1,76 +1,105 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct State {
-    int dist, x, y;
-    bool operator>(const State& o) const {
-        return dist > o.dist;
-    }
+struct Node {
+    int cost, x, y;
+    bool operator>(const Node &o) const { return cost > o.cost; }
 };
+
+inline bool isValid(int x, int y, int n, int m, const vector<string> &grid) {
+    return x >= 0 && x < n && y >= 0 && y < m && grid[x][y] != '1';
+}
+
+inline void moveRobot(int &x, int &y, char dir) {
+    if (dir == 'U') --x;
+    else if (dir == 'D') ++x;
+    else if (dir == 'L') --y;
+    else if (dir == 'R') ++y;
+}
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int N, M;
-    cin >> N >> M;
-    vector<string> grid(N);
-    for (int i = 0; i < N; i++) cin >> grid[i];
+    int n, m;
+    cin >> n >> m;
+    vector<string> grid(n);
+    for (int i = 0; i < n; ++i) cin >> grid[i];
 
-    int Ax, Ay, Bx, By;
-    cin >> Ax >> Ay >> Bx >> By;
+    int sx, sy, gx, gy;
+    cin >> sx >> sy >> gx >> gy;
 
     int K;
     cin >> K;
-    vector<string> orders(K);
-    for (int i = 0; i < K; i++) cin >> orders[i];
+    vector<string> cmds(K);
+    for (int i = 0; i < K; ++i) cin >> cmds[i];
 
-    // Precompute transitions
-    // next[x][y][i] = final pos after applying orders[i]
-    vector<vector<vector<pair<int,int>>>> nxt(N, vector<vector<pair<int,int>>>(M, vector<pair<int,int>>(K)));
 
-    auto inside = [&](int x,int y){ return x>=0 && x<N && y>=0 && y<M; };
+    vector<string> useful;
+    useful.reserve(K);
+    for (auto &s : cmds) {
+        bool ok = false;
+        for (char c : s)
+            if (c == 'U' || c == 'D' || c == 'L' || c == 'R') {
+                ok = true;
+                break;
+            }
+        if (ok) useful.push_back(s);
+    }
+    cmds.swap(useful);
+    K = cmds.size();
 
-    for (int x = 0; x < N; x++) {
-        for (int y = 0; y < M; y++) {
-            if (grid[x][y] == '1') continue;
-            for (int i = 0; i < K; i++) {
-                int cx = x, cy = y;
-                for (char c : orders[i]) {
-                    int nx = cx, ny = cy;
-                    if (c == 'U') nx--;
-                    else if (c == 'D') nx++;
-                    else if (c == 'L') ny--;
-                    else if (c == 'R') ny++;
-                    if (inside(nx, ny) && grid[nx][ny] == '0') {
-                        cx = nx; cy = ny;
-                    }
-                    // si no es válido, se queda quieto
+    const int INF = 1e9;
+    vector<vector<int>> dist(n, vector<int>(m, INF));
+
+    vector<vector<vector<array<int, 3>>>> cmdDest(
+        K, vector<vector<array<int, 3>>>(
+               n, vector<array<int, 3>>(m, {0, 0, 0})));
+
+    for (int k = 0; k < K; ++k) {
+        const string &cmd = cmds[k];
+        for (int x = 0; x < n; ++x) {
+            for (int y = 0; y < m; ++y) {
+                if (grid[x][y] == '1') {
+                    cmdDest[k][x][y] = {x, y, 0};
+                    continue;
                 }
-                nxt[x][y][i] = {cx, cy};
+                int nx = x, ny = y, steps = 0;
+                for (char c : cmd) {
+                    int tx = nx, ty = ny;
+                    moveRobot(tx, ty, c);
+                    if (isValid(tx, ty, n, m, grid)) {
+                        nx = tx;
+                        ny = ty;
+                        ++steps;
+                    }
+                }
+                cmdDest[k][x][y] = {nx, ny, steps};
             }
         }
     }
 
-    const int INF = 1e9;
-    vector<vector<int>> dist(N, vector<int>(M, INF));
-    priority_queue<State, vector<State>, greater<State>> pq;
-    dist[Ax][Ay] = 0;
-    pq.push({0, Ax, Ay});
+
+    priority_queue<Node, vector<Node>, greater<Node>> pq;
+    dist[sx][sy] = 0;
+    pq.push({0, sx, sy});
 
     while (!pq.empty()) {
-        auto [d, x, y] = pq.top(); pq.pop();
-        if (d > dist[x][y]) continue;
-        if (x == Bx && y == By) {
-            cout << d << "\n";
+        auto [cost, x, y] = pq.top();
+        pq.pop();
+        if (cost > dist[x][y]) continue;
+        if (x == gx && y == gy) {
+            cout << cost << "\n";
             return 0;
         }
-        for (int i = 0; i < K; i++) {
-            auto [nx, ny] = nxt[x][y][i];
-            int nd = d + (int)orders[i].size();
-            if (nd < dist[nx][ny]) {
-                dist[nx][ny] = nd;
-                pq.push({nd, nx, ny});
+
+        for (int k = 0; k < K; ++k) {
+            auto [nx, ny, steps] = cmdDest[k][x][y];
+            if (steps == 0) continue;
+            int newCost = cost + steps;
+            if (newCost < dist[nx][ny]) {
+                dist[nx][ny] = newCost;
+                pq.push({newCost, nx, ny});
             }
         }
     }
