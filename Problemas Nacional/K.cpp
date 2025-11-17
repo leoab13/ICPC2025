@@ -1,14 +1,14 @@
 #include <bits/stdc++.h>
 using namespace std;
 using ll = long long;
-
+typedef  long double ld;
 // Maximiza (w+a) * (h+k-a) en a ∈ [0, k]
 ll bestTwoKing(ll w, ll h, ll k) {
     // Punto crítico de la parábola
-    long double a0 = ((long double)h - (long double)w + (long double)k) / 2.0;
+    ld a0 = ((ld)h - (ld)w + (ld)k) / 2.0;
 
     // Limitar al rango válido
-    long double a_clamped = max((long double)0, min((long double)k, a0));
+    ld a_clamped = max((ld)0, min((ld)k, a0));
 
     ll a1 = floor(a_clamped);
     ll a2 = ceil(a_clamped);
